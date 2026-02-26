@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.env
+.DS_Store
+*.p8
+*.log
+.snowsql/
+app_venv_*/
+venv/
+.venv/
