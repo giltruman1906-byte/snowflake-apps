@@ -1,0 +1,55 @@
+manifest_version: 1
+
+version:
+  name: Snowflake Pulse
+  label: "Snowflake Pulse — Pipeline Monitor"
+  comment: "Lightweight task monitoring, cost estimation, and Slack alerts for Snowflake pipelines."
+
+artifacts:
+  setup_script: setup_script.sql
+  default_streamlit: streamlit/Home.py
+  extension_code: true
+
+privileges:
+  - CREATE DATABASE:
+      description: "Store internal monitoring data"
+  - CREATE WAREHOUSE:
+      description: "Run collector task on a dedicated XS warehouse"
+  - EXECUTE TASK:
+      description: "Run the metadata collector on a schedule"
+  - EXECUTE MANAGED TASK:
+      description: "Allow serverless task execution"
+
+references:
+  - snowflake_task_history:
+      label: "Task History View"
+      description: "Access to SNOWFLAKE.ACCOUNT_USAGE.TASK_HISTORY for monitoring task runs"
+      privileges:
+        - SELECT
+      object_type: VIEW
+      register_callback: config.register_reference
+  - snowflake_query_history:
+      label: "Query History View"
+      description: "Access to SNOWFLAKE.ACCOUNT_USAGE.QUERY_HISTORY for linking queries to task runs"
+      privileges:
+        - SELECT
+      object_type: VIEW
+      register_callback: config.register_reference
+  - snowflake_warehouse_metering:
+      label: "Warehouse Metering History"
+      description: "Access to SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY for cost estimation"
+      privileges:
+        - SELECT
+      object_type: VIEW
+      register_callback: config.register_reference
+  - slack_external_access:
+      label: "Slack Webhook Access"
+      description: "External access integration for sending Slack alerts"
+      privileges:
+        - USAGE
+      object_type: EXTERNAL ACCESS INTEGRATION
+      register_callback: config.register_reference
+
+configuration:
+  log_level: INFO
+  trace_level: OFF
